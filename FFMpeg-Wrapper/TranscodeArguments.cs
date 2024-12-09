@@ -178,8 +178,12 @@ namespace FFMpeg_Wrapper {
     }
 
     public abstract class StreamOptions<TCodec> where TCodec : class, Codec {
-        public TCodec? Codec = null;
+        public TCodec Codec;
         public Language? Language;
+
+        protected StreamOptions(TCodec defaultCodec) {
+            this.Codec = defaultCodec;
+        }
 
         /// <summary>
         /// a:0 would select the first audio stream in the output
@@ -187,13 +191,10 @@ namespace FFMpeg_Wrapper {
         /// <param name="outputStreamSpecifier"></param>
         /// <returns></returns>
         internal IEnumerable<string> GetArguments(string outputStreamSpecifier) {
-            if (this.Codec != null)
+            yield return $"-c{outputStreamSpecifier} {Codec.Name}";
+            foreach (var arg in Codec.GetArguments(outputStreamSpecifier))
             {
-                yield return $"-c{outputStreamSpecifier} {Codec.Name}";
-                foreach (var arg in Codec.GetArguments(outputStreamSpecifier))
-                {
-                    yield return arg;
-                }
+                yield return arg;
             }
 
             if (this.Language != null)
@@ -210,7 +211,13 @@ namespace FFMpeg_Wrapper {
         }
     }
 
-    public class VideoStreamOptions : StreamOptions<VideoCodec> { }
-    public class AudioStreamOptions : StreamOptions<AudioCodec> { }
-    public class SubtitleStreamOptions : StreamOptions<SubtitleCodec> { }
+    public class VideoStreamOptions : StreamOptions<VideoCodec> {
+        public VideoStreamOptions() : base(Codecs.Codecs.Copy) { }
+    }
+    public class AudioStreamOptions : StreamOptions<AudioCodec> {
+        public AudioStreamOptions() : base(Codecs.Codecs.Copy) { }
+    }
+    public class SubtitleStreamOptions : StreamOptions<SubtitleCodec> {
+        public SubtitleStreamOptions() : base(Codecs.Codecs.Copy) { }
+    }
 }
