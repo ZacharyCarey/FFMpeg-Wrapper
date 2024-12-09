@@ -177,13 +177,15 @@ namespace FFMpeg_Wrapper {
         }
     }
 
-    public abstract class StreamOptions<TCodec> where TCodec : class, Codec {
+    public abstract class StreamOptions<TCodec, TSelf> where TCodec : class, Codec where TSelf : class {
         public TCodec Codec;
         public Language? Language;
 
         protected StreamOptions(TCodec defaultCodec) {
             this.Codec = defaultCodec;
         }
+
+        protected abstract TSelf GetThis();
 
         /// <summary>
         /// a:0 would select the first audio stream in the output
@@ -209,15 +211,37 @@ namespace FFMpeg_Wrapper {
                 } 
             }
         }
+
+        public TSelf SetCodec(TCodec codec) {
+            this.Codec = codec;
+            return GetThis();
+        }
+
+        public TSelf SetLanguage(Language? language) {
+            this.Language = language;
+            return GetThis();
+        }
     }
 
-    public class VideoStreamOptions : StreamOptions<VideoCodec> {
+    public class VideoStreamOptions : StreamOptions<VideoCodec, VideoStreamOptions> {
         public VideoStreamOptions() : base(Codecs.Codecs.Copy) { }
+
+        protected override VideoStreamOptions GetThis() {
+            return this;
+        }
     }
-    public class AudioStreamOptions : StreamOptions<AudioCodec> {
+    public class AudioStreamOptions : StreamOptions<AudioCodec, AudioStreamOptions> {
         public AudioStreamOptions() : base(Codecs.Codecs.Copy) { }
+
+        protected override AudioStreamOptions GetThis() {
+            return this;
+        }
     }
-    public class SubtitleStreamOptions : StreamOptions<SubtitleCodec> {
+    public class SubtitleStreamOptions : StreamOptions<SubtitleCodec, SubtitleStreamOptions> {
         public SubtitleStreamOptions() : base(Codecs.Codecs.Copy) { }
+
+        protected override SubtitleStreamOptions GetThis() {
+            return this;
+        }
     }
 }
