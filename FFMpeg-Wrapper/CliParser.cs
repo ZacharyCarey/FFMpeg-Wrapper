@@ -9,10 +9,11 @@ using System.Threading.Tasks;
 namespace FFMpeg_Wrapper {
     internal class CliParser {
         private static readonly Regex ProgressRegex = new(@"time=(\d\d:\d\d:\d\d.\d\d?)", RegexOptions.Compiled);
-        private static readonly Regex DurationRegex = new(@"Duration=(\d\d:\d\d:\d\d.\d\d?)", RegexOptions.Compiled);
+        private static readonly Regex DurationRegex = new(@"Duration: (\d\d:\d\d:\d\d.\d\d?)", RegexOptions.Compiled);
 
         bool readingInputFile = false;
         TimeSpan? TotalDuration = null;
+        int lastProgressInt = -1;
 
         public event EventHandler<double>? OnPercentProgress;
         public event EventHandler<TimeSpan>? OnTimeProgress;
@@ -20,6 +21,7 @@ namespace FFMpeg_Wrapper {
         internal void ForceUpdateComplete() {
             this.OnPercentProgress?.Invoke(this, 100.0);
             if (TotalDuration != null) this.OnTimeProgress?.Invoke(this, TotalDuration.Value);
+            lastProgressInt = 100;
         }
 
         internal void ParseStdOutput(object? sender, string line) {
@@ -40,7 +42,11 @@ namespace FFMpeg_Wrapper {
                     if (TotalDuration != null)
                     {
                         var percentage = Math.Round(time.TotalSeconds / TotalDuration.Value.TotalSeconds * 100, 2);
-                        OnPercentProgress?.Invoke(this, percentage);
+                        if ((int)percentage > lastProgressInt)
+                        {
+                            lastProgressInt = (int)percentage;
+                            OnPercentProgress?.Invoke(this, percentage);
+                        }
                     }
                 }
             } else if (line.StartsWith("Input #"))

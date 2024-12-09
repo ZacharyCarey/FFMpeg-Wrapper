@@ -14,9 +14,9 @@
     <RepositoryUrl>https://github.com/ZacharyCarey/FFMpeg-Wrapper</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>CLI;command;line;wrapper;command line;library;shell;async;FFMpeg;FFProbe</PackageTags>
-    <PackageReleaseNotes>Fixed not marking streams as copy if no stream options were provided.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fixed progress reporting.</PackageReleaseNotes>
     <AssemblyVersion></AssemblyVersion>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	<GenerateDocumentationFile>True</GenerateDocumentationFile>
