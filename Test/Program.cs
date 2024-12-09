@@ -19,7 +19,7 @@ var arguments = ffmpeg.Transcode(@"C:\Users\Zach\Downloads\Test.mp4")
     .AddVideoStreams(
         input,
         new VideoStreamOptions() {
-            Codec = Codecs.Libx26x.SetCRF(16)
+            Codec = Codecs.Libx264.SetCRF(16)
         })
     .AddAudioStream(
         input.AudioStreams[0],

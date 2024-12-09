@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace FFMpeg_Wrapper.Codecs {
     public static class Codecs {
-        public static libx264 Libx26x => new();
+        public static libx264 Libx264 => new();
         public static aac AAC => new();
         public static CopyCodec Copy => new();
     }

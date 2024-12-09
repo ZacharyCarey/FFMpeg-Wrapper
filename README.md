@@ -42,7 +42,7 @@ var arguments = ffmpeg.Transcode(@"C:\Users\Zach\Downloads\Test.mp4") // Start a
     .AddVideoStreams( // Add all video streams
         input, // getting the streams from our only input file
         new VideoStreamOptions() {
-            Codec = Codecs.Libx26x.SetCRF(16) // use the libx264 transcoder with -crf 16
+            Codec = Codecs.Libx264.SetCRF(16) // use the libx264 transcoder with -crf 16
         })
     .AddAudioStream( // Add a single audio stream
         input.AudioStreams[0], // Select the first stream from our only input file

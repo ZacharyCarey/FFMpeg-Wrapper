@@ -8,7 +8,7 @@
     <Platforms>AnyCPU;x64</Platforms>
     <Title>FFMpeg-Wrapper</Title>
     <Authors>zcarey</Authors>
-    <Description>Wraps the FFMpeg CLI for ease-of-use when running commands.</Description>
+    <Description>Fixed codec name</Description>
     <PackageProjectUrl>https://github.com/ZacharyCarey/FFMpeg-Wrapper</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/ZacharyCarey/FFMpeg-Wrapper</RepositoryUrl>
@@ -16,7 +16,7 @@
     <PackageTags>CLI;command;line;wrapper;command line;library;shell;async;FFMpeg;FFProbe</PackageTags>
     <PackageReleaseNotes>Initial release</PackageReleaseNotes>
     <AssemblyVersion></AssemblyVersion>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	<GenerateDocumentationFile>True</GenerateDocumentationFile>
