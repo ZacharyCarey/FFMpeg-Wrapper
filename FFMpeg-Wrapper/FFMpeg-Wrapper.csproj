@@ -8,7 +8,7 @@
     <Platforms>AnyCPU;x64</Platforms>
     <Title>FFMpeg-Wrapper</Title>
     <Authors>zcarey</Authors>
-    <Description>Fixed codec name</Description>
+    <Description>Fixed not marking streams as copy if no stream options were provided.</Description>
     <PackageProjectUrl>https://github.com/ZacharyCarey/FFMpeg-Wrapper</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/ZacharyCarey/FFMpeg-Wrapper</RepositoryUrl>
@@ -16,7 +16,7 @@
     <PackageTags>CLI;command;line;wrapper;command line;library;shell;async;FFMpeg;FFProbe</PackageTags>
     <PackageReleaseNotes>Initial release</PackageReleaseNotes>
     <AssemblyVersion></AssemblyVersion>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	<GenerateDocumentationFile>True</GenerateDocumentationFile>

@@ -66,11 +66,14 @@ namespace FFMpeg_Wrapper {
         /// <param name="options"></param>
         /// <returns></returns>
         public TranscodeArguments AddVideoStream(VideoStream stream, VideoStreamOptions? options) {
+            // Get the default options if none are provided. This is usually just specifying to use the "copy codec".
+            if (options == null) options = new VideoStreamOptions();
+
             int sourceIndex = GetInputIndex(stream.SourceFile);
             string outputStreamSpecifier = $":{this.OutputStreams.Count}";
 
             this.Arguments.Add($"-map {sourceIndex}:{stream.Index}");
-            if(options != null) this.Arguments.AddRange(options.GetArguments(outputStreamSpecifier));
+            this.Arguments.AddRange(options.GetArguments(outputStreamSpecifier));
             this.OutputStreams.Add(stream);
 
             return this;
@@ -111,6 +114,9 @@ namespace FFMpeg_Wrapper {
         /// <param name="options"></param>
         /// <returns></returns>
         public TranscodeArguments AddAudioStream(AudioStream stream, AudioStreamOptions? options) {
+            // Get the default options if none are provided. This is usually just specifying to use the "copy codec".
+            if (options == null) options = new AudioStreamOptions();
+
             int sourceIndex = GetInputIndex(stream.SourceFile);
             string outputStreamSpecifier = $":{this.OutputStreams.Count}";
 
@@ -156,6 +162,9 @@ namespace FFMpeg_Wrapper {
         /// <param name="options"></param>
         /// <returns></returns>
         public TranscodeArguments AddSubtitleStream(SubtitleStream stream, SubtitleStreamOptions? options) {
+            // Get the default options if none are provided. This is usually just specifying to use the "copy codec".
+            if (options == null) options = new SubtitleStreamOptions();
+
             int sourceIndex = GetInputIndex(stream.SourceFile);
             string outputStreamSpecifier = $":{this.OutputStreams.Count}";
 
