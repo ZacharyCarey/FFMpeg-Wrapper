@@ -8,13 +8,13 @@
     <Platforms>AnyCPU;x64</Platforms>
     <Title>FFMpeg-Wrapper</Title>
     <Authors>zcarey</Authors>
-    <Description>Fixed not marking streams as copy if no stream options were provided.</Description>
+    <Description>A wrapper for FFMpeg CLI for ease-of-use when running commands.</Description>
     <PackageProjectUrl>https://github.com/ZacharyCarey/FFMpeg-Wrapper</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/ZacharyCarey/FFMpeg-Wrapper</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>CLI;command;line;wrapper;command line;library;shell;async;FFMpeg;FFProbe</PackageTags>
-    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <PackageReleaseNotes>Fixed not marking streams as copy if no stream options were provided.</PackageReleaseNotes>
     <AssemblyVersion></AssemblyVersion>
     <Version>1.0.3</Version>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
