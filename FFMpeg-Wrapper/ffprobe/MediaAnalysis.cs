@@ -100,7 +100,8 @@ namespace FFMpeg_Wrapper.ffprobe
                 Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),
                 Tags = stream.Tags.ToCaseInsensitive(),
                 BitDepth = GetBitDepth(stream),
-                NumberOfFrames = !string.IsNullOrEmpty(stream.NumberOfFrames) ? MediaAnalysisUtils.ParseUIntInvariant(stream.NumberOfFrames) : default
+                NumberOfFrames = !string.IsNullOrEmpty(stream.NumberOfFrames) ? MediaAnalysisUtils.ParseUIntInvariant(stream.NumberOfFrames) : default,
+                FieldOrder = stream.FieldOrder ?? ""
             };
         }
 

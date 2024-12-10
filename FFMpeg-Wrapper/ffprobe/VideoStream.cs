@@ -23,6 +23,7 @@ namespace FFMpeg_Wrapper.ffprobe {
         public string ColorTransfer { get; set; } = null!;
         public string ColorPrimaries { get; set; } = null!;
         public uint NumberOfFrames { get; set; }
+        public string FieldOrder { get; set; }
 
         internal VideoStream(MediaAnalysis source) : base(source) {
 
