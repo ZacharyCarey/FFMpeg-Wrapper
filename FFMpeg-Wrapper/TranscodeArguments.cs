@@ -1,5 +1,6 @@
 ﻿using CLI_Wrapper;
 using FFMpeg_Wrapper.Codecs;
+using FFMpeg_Wrapper.Filters;
 using FFMpeg_Wrapper.ffprobe;
 using Iso639;
 using System;
@@ -186,8 +187,13 @@ namespace FFMpeg_Wrapper {
         }
     }
 
-    public abstract class StreamOptions<TCodec, TSelf> where TCodec : class, Codec where TSelf : class {
+    public abstract class StreamOptions<TCodec, TFilter, TSelf> 
+        where TCodec : class, Codec
+        where TFilter : class, Filter
+        where TSelf : class 
+    {
         public TCodec Codec;
+        public TFilter? Filter = null;
         public Language? Language;
 
         protected StreamOptions(TCodec defaultCodec) {
@@ -206,6 +212,15 @@ namespace FFMpeg_Wrapper {
             foreach (var arg in Codec.GetArguments(outputStreamSpecifier))
             {
                 yield return arg;
+            }
+
+            if (Filter != null)
+            {
+                yield return $"-filter{outputStreamSpecifier} {Filter.Name}";
+                foreach(var arg in Filter.GetArguments(outputStreamSpecifier))
+                {
+                    yield return arg;
+                }
             }
 
             if (this.Language != null)
@@ -232,21 +247,21 @@ namespace FFMpeg_Wrapper {
         }
     }
 
-    public class VideoStreamOptions : StreamOptions<VideoCodec, VideoStreamOptions> {
+    public class VideoStreamOptions : StreamOptions<VideoCodec, VideoFilter, VideoStreamOptions> {
         public VideoStreamOptions() : base(Codecs.Codecs.Copy) { }
 
         protected override VideoStreamOptions GetThis() {
             return this;
         }
     }
-    public class AudioStreamOptions : StreamOptions<AudioCodec, AudioStreamOptions> {
+    public class AudioStreamOptions : StreamOptions<AudioCodec, AudioFilter, AudioStreamOptions> {
         public AudioStreamOptions() : base(Codecs.Codecs.Copy) { }
 
         protected override AudioStreamOptions GetThis() {
             return this;
         }
     }
-    public class SubtitleStreamOptions : StreamOptions<SubtitleCodec, SubtitleStreamOptions> {
+    public class SubtitleStreamOptions : StreamOptions<SubtitleCodec, SubtitleFilter, SubtitleStreamOptions> {
         public SubtitleStreamOptions() : base(Codecs.Codecs.Copy) { }
 
         protected override SubtitleStreamOptions GetThis() {
