@@ -115,6 +115,9 @@ namespace FFMpeg_Wrapper.ffprobe {
         [JsonPropertyName("nb_frames")]
         public string NumberOfFrames { get; set; } = null!;
 
+        [JsonPropertyName("nb_read_frames")]
+        public string NumberOfReadFrames { get; set; } = null!;
+
         [JsonPropertyName("field_order")]
         public string? FieldOrder { get; set; } = null;
     }

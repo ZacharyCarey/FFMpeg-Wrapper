@@ -100,7 +100,13 @@ namespace FFMpeg_Wrapper.ffprobe
                 Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),
                 Tags = stream.Tags.ToCaseInsensitive(),
                 BitDepth = GetBitDepth(stream),
-                NumberOfFrames = !string.IsNullOrEmpty(stream.NumberOfFrames) ? MediaAnalysisUtils.ParseUIntInvariant(stream.NumberOfFrames) : default,
+
+                // First try to read nb_read_frames, as it is more reliable but took longer to process
+                NumberOfFrames = !string.IsNullOrEmpty(stream.NumberOfReadFrames) ? MediaAnalysisUtils.ParseUIntInvariant(stream.NumberOfReadFrames) 
+                    // If it doesnt exist, look for the nb_frames flag in the file. It's less reliable, but fast to read.
+                    // However it's not required to be present.
+                    : (!string.IsNullOrEmpty(stream.NumberOfFrames) ? MediaAnalysisUtils.ParseUIntInvariant(stream.NumberOfFrames) : default),
+                
                 FieldOrder = stream.FieldOrder ?? ""
             };
         }
