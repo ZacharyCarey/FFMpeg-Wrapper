@@ -11,6 +11,7 @@ namespace FFMpeg_Wrapper.ffmpeg {
         internal string? Duration = null;
         long? LimitSize = null;
         internal string FilePath;
+        string? Title = null;
 
         /// <summary>
         /// These MUST be added BEFORE the output file
@@ -21,6 +22,7 @@ namespace FFMpeg_Wrapper.ffmpeg {
             if (ToTime != null) yield return $"-to {ToTime}";
             if (Duration != null) yield return $"-t {Duration}";
             if (LimitSize != null) yield return $"-fs {LimitSize}";
+            if (Title != null) yield return $"-metadata title={Utils.GetEscapedString(Title)}";
         }
 
         /// <summary>
@@ -74,6 +76,17 @@ namespace FFMpeg_Wrapper.ffmpeg {
         /// <returns></returns>
         public OutputFileOptions SetFileSizeLimit(long sizeInBytes) {
             LimitSize = sizeInBytes;
+            return this;
+        }
+
+        /// <summary>
+        /// The only thing I know of that uses this is when playing the file in
+        /// VLC this is the text that will initially popup on the screen
+        /// </summary>
+        /// <param name="title"></param>
+        /// <returns></returns>
+        public OutputFileOptions SetTitle(string title) {
+            this.Title = title;
             return this;
         }
 

@@ -23,7 +23,8 @@ FFMpeg ffmpeg = new();
 InputFileOptions inputOptions = new InputFileOptions()
     .SetStartTime(new TimeSpan(2, 17, 0));
 OutputFileOptions outputOptions = new OutputFileOptions()
-    .SetDuration(new TimeSpan(0, 5, 0));
+    .SetDuration(new TimeSpan(0, 5, 0))
+    .SetTitle("This is a title.");
 
 var arguments = ffmpeg.Transcode(@"C:\Users\Zach\Downloads\test3.mkv", outputOptions)
     .AddVideoStreams(
