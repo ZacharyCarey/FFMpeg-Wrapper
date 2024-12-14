@@ -25,20 +25,23 @@ InputFileOptions inputOptions = new InputFileOptions()
 OutputFileOptions outputOptions = new OutputFileOptions()
     .SetDuration(new TimeSpan(0, 5, 0));
 
-var arguments = ffmpeg.Transcode(@"C:\Users\Zach\Downloads\test3.mp4", outputOptions)
+var arguments = ffmpeg.Transcode(@"C:\Users\Zach\Downloads\test3.mkv", outputOptions)
     .AddVideoStreams(
         input,
         new VideoStreamOptions() 
             .SetCodec(Codecs.LibSvtAV1
                 .SetCRF(20)
                 .SetPreset(5))
-            .AddFilter(Filters.Scale(ScaleResolution.SD_720x480)),
+            .AddFilter(Filters.Scale(ScaleResolution.SD_720x480))
+            .SetFlag(StreamFlag.Forced, true),
         inputOptions)
     .AddAudioStream(
         input.AudioStreams[0],
         new AudioStreamOptions() 
             .SetCodec(Codecs.AC3)
-            .SetLanguage(Language.FromPart2("eng")),
+            .SetLanguage(Language.FromPart2("eng"))
+            .SetFlag(StreamFlag.Commentary, true)
+            .SetFlag(StreamFlag.HearingImpaired, true),
         inputOptions);
 
 Stopwatch timer = new();

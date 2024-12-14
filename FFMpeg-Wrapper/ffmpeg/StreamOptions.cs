@@ -15,7 +15,8 @@ namespace FFMpeg_Wrapper.ffmpeg {
     {
         TCodec Codec;
         List<TFilter> Filters = new();
-        Language? Language;
+        Dictionary<string, bool> Dispositions = new();
+        Dictionary<string, string> Metadata = new();
 
         protected StreamOptions(TCodec defaultCodec) {
             Codec = defaultCodec;
@@ -40,15 +41,28 @@ namespace FFMpeg_Wrapper.ffmpeg {
                 yield return $"-filter{outputStreamSpecifier} {string.Join(',', Filters.Select(filter => filter.GetArguments()))}";
             }
 
-            if (Language != null)
+            if (Dispositions.Count > 0)
             {
-                string arg = $"language={Language.Part3 ?? Language.Part2 ?? Language.Part1 ?? "und"}";
+                IEnumerable<string> flags = this.Dispositions.Select(pair =>
+                {
+                    return $"{(pair.Value ? "+" : "-")}{pair.Key}";
+                });
+                yield return $"-disposition{outputStreamSpecifier} {string.Join("", flags)}";
+            }
+
+            if (this.Metadata.Count > 0)
+            {
+                string cmd;
                 if (string.IsNullOrEmpty(outputStreamSpecifier))
                 {
-                    yield return $"-metadata {arg}";
+                    cmd = $"-metadata";
                 } else
                 {
-                    yield return $"-metadata:s{outputStreamSpecifier} {arg}";
+                    cmd = $"-metadata:s{outputStreamSpecifier}";
+                }
+                foreach(var metadata in this.Metadata)
+                {
+                    yield return $"{cmd} {metadata.Key}={metadata.Value}";
                 }
             }
         }
@@ -63,10 +77,55 @@ namespace FFMpeg_Wrapper.ffmpeg {
             return GetThis();
         }
 
-        public TSelf SetLanguage(Language? language) {
-            Language = language;
+        public TSelf SetFlag(StreamFlag flag, bool enabled) {
+            string? key = GetStreamFlagKey(flag);
+            if (key != null)
+            {
+                this.Dispositions[key] = enabled;
+            }
             return GetThis();
         }
+
+        private string? GetStreamFlagKey(StreamFlag flag) {
+            switch(flag)
+            {
+                case StreamFlag.Default: return "default";
+                case StreamFlag.Commentary: return "comment";
+                case StreamFlag.Forced: return "forced";
+                case StreamFlag.Original: return "original";
+                case StreamFlag.HearingImpaired: return "hearing_impaired";
+                case StreamFlag.VisualImpaired: return "visual_impaired";
+                case StreamFlag.Captions: return "captions";
+                case StreamFlag.Descriptions: return "descriptions";
+                default: return null;
+            }
+        }
+
+        /// <summary>
+        /// Passing null will list the language as "und"
+        /// </summary>
+        /// <param name="language"></param>
+        /// <returns></returns>
+        public TSelf SetLanguage(Language? language) {
+            this.Metadata["language"] = language.Part3 ?? language.Part2 ?? language.Part1 ?? "und";
+            return GetThis();
+        }
+
+        public TSelf SetName(string name) {
+            this.Metadata["title"] = Utils.GetEscapedString(name);
+            return GetThis();
+        }
+    }
+
+    public enum StreamFlag {
+        Default,
+        Commentary,
+        Forced,
+        Original,
+        HearingImpaired,
+        VisualImpaired,
+        Captions,
+        Descriptions
     }
 
     public class VideoStreamOptions : StreamOptions<VideoCodec, VideoFilter, VideoStreamOptions> {

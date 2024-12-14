@@ -17,5 +17,9 @@ namespace FFMpeg_Wrapper {
             return $"{negative}{time:hh\\:mm\\:ss\\.ffff}";
         }
 
+        internal static string GetEscapedString(string str) {
+            str = str.Replace("\"", "\\\"");
+            return $"\"{str}\"";
+        }
     }
 }
