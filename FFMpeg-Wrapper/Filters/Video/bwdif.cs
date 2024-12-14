@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace FFMpeg_Wrapper.Filters.Video {
     public class bwdif : VideoFilter {
-        string Filter.Name => "bwdif";
 
-        IEnumerable<string> Filter.GetArguments(string streamSpecifier) {
-            yield break;
+        string Filter.GetArguments() {
+            return "bwdif";
         }
     }
 }

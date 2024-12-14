@@ -5,8 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FFMpeg_Wrapper {
-    public abstract class FFMpegArgs {
+namespace FFMpeg_Wrapper.ffmpeg
+{
+    public abstract class FFMpegArgs
+    {
 
         private Action<TimeSpan>? OnTimeProgress = null;
         private Action<double>? OnPercentProgress = null;
@@ -15,11 +17,14 @@ namespace FFMpeg_Wrapper {
         string? LogPath = null;
         bool Overwrite = true;
 
-        protected FFMpegArgs(FFMpeg core) {
-            this.Core = core;
+        protected FFMpegArgs(FFMpeg core)
+        {
+            Core = core;
         }
 
         protected abstract IEnumerable<string> GetArguments();
+
+        protected abstract TimeSpan DetermineProcessTime();
 
         /// <summary>
         /// Register an action that will be invoked during the ffmpeg processing when a percentage is calculated.
@@ -27,8 +32,9 @@ namespace FFMpeg_Wrapper {
         /// </summary>
         /// <param name="onPercentageProgress"></param>
         /// <returns></returns>
-        public FFMpegArgs NotifyOnProgress(Action<double> callback) {
-            this.OnPercentProgress = callback;
+        public FFMpegArgs NotifyOnProgress(Action<double> callback)
+        {
+            OnPercentProgress = callback;
             return this;
         }
 
@@ -39,23 +45,34 @@ namespace FFMpeg_Wrapper {
         /// </summary>
         /// <param name="onTimeProgress"></param>
         /// <returns></returns>
-        public FFMpegArgs NotifyOnProgress(Action<TimeSpan> callback) {
-            this.OnTimeProgress = callback;
+        public FFMpegArgs NotifyOnProgress(Action<TimeSpan> callback)
+        {
+            OnTimeProgress = callback;
             return this;
         }
 
         /// <inheritdoc cref="CLI.SetLogPath(string)"/>
-        public FFMpegArgs SetLogPath(string path) {
+        public FFMpegArgs SetLogPath(string path)
+        {
             LogPath = path;
             return this;
         }
 
-        public FFMpegArgs SetOverwrite(bool allow) {
+        public FFMpegArgs SetOverwrite(bool allow)
+        {
             Overwrite = allow;
             return this;
         }
 
-        public bool Run() {
+        /// <summary>
+        /// On success will return null.
+        /// On an error, will return the error string associated with the 
+        /// return code received from FFMpeg. If the error code is unknown,
+        /// "Unknown Error Code" will be returned.
+        /// </summary>
+        /// <returns></returns>
+        public string? Run()
+        {
             CLI cli = CreateCLI();
             CliParser parser = CreateParser(cli);
             CliResult result = cli.Run();
@@ -63,7 +80,8 @@ namespace FFMpeg_Wrapper {
             return ParseResult(result);
         }
 
-        public async Task<bool> RunAsync() {
+        public async Task<string?> RunAsync()
+        {
             CLI cli = CreateCLI();
             CliParser parser = CreateParser(cli);
             CliResult result = await cli.RunAsync();
@@ -71,42 +89,59 @@ namespace FFMpeg_Wrapper {
             return ParseResult(result);
         }
 
-        private CLI CreateCLI() {
+        private CLI CreateCLI()
+        {
             CLI cli = Core.GetCLI();
             if (LogPath != null) cli.SetLogPath(LogPath);
 
             cli.AddArgument("-nostdin");
             cli.AddArgument(Overwrite ? "-y" : "-n");
             cli.AddArgument($"-abort_on empty_output");
-            cli.AddArguments(this.GetArguments());
+            cli.AddArguments(GetArguments());
 
             return cli;
         }
 
-        private CliParser CreateParser(CLI cli) {
-            CliParser parser = new();
-            if (this.OnPercentProgress != null) parser.OnPercentProgress += (sender, value) => this.OnPercentProgress(value);
-            if (this.OnTimeProgress != null) parser.OnTimeProgress += (sender, value) => this.OnTimeProgress(value);
+        private CliParser CreateParser(CLI cli)
+        {
+            CliParser parser = new(DetermineProcessTime());
+            if (OnPercentProgress != null) parser.OnPercentProgress += (sender, value) => OnPercentProgress(value);
+            if (OnTimeProgress != null) parser.OnTimeProgress += (sender, value) => OnTimeProgress(value);
             cli.OutputDataReceived += parser.ParseStdOutput;
             cli.ErrorDataReceived += parser.ParseStdError;
 
             return parser;
         }
 
-        private bool ParseResult(CliResult result) {
+        /// <summary>
+        /// On success will return null.
+        /// On an error, will return the error string associated with the 
+        /// return code received from FFMpeg. If the error code is unknown,
+        /// "Unknown Error Code" will be returned.
+        /// </summary>
+        private string? ParseResult(CliResult result)
+        {
             if (result.Exception != null)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"FFMpeg encountered an exception: {result.Exception.Message}");
                 Console.ResetColor();
-                return false;
-            } else if (result.ExitCode != 0)
+                return $"Exception encountered: {result.Exception.Message}";
+            }
+            else if (result.ExitCode != 0)
             {
+                string errorString;
+                if (!ErrorCodes.Errors.TryGetValue(result.ExitCode, out errorString))
+                {
+                    errorString = "Unknown Error Code";
+                }
+
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"FFMpeg returned an error code: {result.ExitCode}");
+                Console.WriteLine($"FFMpeg returned an error code: {result.ExitCode} - {errorString}");
                 Console.ResetColor();
-                return false;
-            } else
+                return errorString;
+            }
+            else
             {
                 // Force error in certain situations
                 foreach (var line in result.ErrorData)
@@ -116,12 +151,12 @@ namespace FFMpeg_Wrapper {
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine($"FFMpeg failed to open output file.");
                         Console.ResetColor();
-                        return false;
+                        return "Failed to open output file.";
                     }
                 }
 
                 // No errors were found
-                return true;
+                return null;
             }
         }
     }

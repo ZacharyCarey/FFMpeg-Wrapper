@@ -8,7 +8,7 @@ namespace FFMpeg_Wrapper.Codecs {
     public class CopyCodec : VideoCodec, AudioCodec, SubtitleCodec {
         string Codec.Name => "copy";
 
-        IEnumerable<string> Codec.GetArguments(string streamSpecifier) {
+        IEnumerable<string> Codec.GetArguments() {
             yield break;
         }
     }

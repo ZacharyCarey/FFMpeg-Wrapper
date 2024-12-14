@@ -41,15 +41,13 @@ FFMpeg ffmpeg = new();
 var arguments = ffmpeg.Transcode(@"C:\Users\Zach\Downloads\Test.mp4") // Start a transcode command and set our desired output file
     .AddVideoStreams( // Add all video streams
         input, // getting the streams from our only input file
-        new VideoStreamOptions() {
-            Codec = Codecs.Libx264.SetCRF(16) // use the libx264 transcoder with -crf 16
-        })
+        new VideoStreamOptions() 
+			.SetCodec(Codecs.Libx264.SetCRF(16))) // use the libx264 transcoder with -crf 16
     .AddAudioStream( // Add a single audio stream
         input.AudioStreams[0], // Select the first stream from our only input file
-        new AudioStreamOptions() {
-            Codec = Codecs.AAC, // Use the AAC codec
-            Language = Language.FromPart2("eng") // Tag the track language as "English"
-        });
+        new AudioStreamOptions() 
+			.SetCodec(Codecs.AAC) // Use the AAC codec
+			.SetLanguage(Language.FromPart2("eng"))); // Tag the track language as "English"
 
 // Now run the FFMpeg arguments on the command line
 bool result = arguments

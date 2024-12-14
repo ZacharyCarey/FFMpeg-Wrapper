@@ -10,8 +10,8 @@ namespace FFMpeg_Wrapper.Codecs.Video {
         string Codec.Name => "libx264";
         int? Crf = null;
 
-        IEnumerable<string> Codec.GetArguments(string streamSpecifier) {
-            if (Crf != null) yield return $"-crf{streamSpecifier} {Crf}";
+        IEnumerable<string> Codec.GetArguments() {
+            if (Crf != null) yield return $"-crf {Crf}";
         }
 
         /// <summary>

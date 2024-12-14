@@ -2,10 +2,14 @@
 
 using FFMpeg_Wrapper;
 using FFMpeg_Wrapper.Codecs;
+using FFMpeg_Wrapper.ffmpeg;
 using FFMpeg_Wrapper.ffprobe;
+using FFMpeg_Wrapper.Filters;
+using FFMpeg_Wrapper.Filters.Video;
 using Iso639;
+using System.Diagnostics;
 
-MediaAnalysis? input = new FFProbe().Analyse(@"C:\Users\Zach\Downloads\VTS_02_1.VOB");
+MediaAnalysis? input = new FFProbe().Analyse(@"F:\Video\backup\TestVideo\BDMV\STREAM\00055.m2ts");
 if (input == null)
 {
     Console.ForegroundColor = ConsoleColor.Red;
@@ -15,35 +19,49 @@ if (input == null)
 }
 
 FFMpeg ffmpeg = new();
-var arguments = ffmpeg.Transcode(@"C:\Users\Zach\Downloads\Test.mp4")
+
+InputFileOptions inputOptions = new InputFileOptions()
+    .SetStartTime(new TimeSpan(2, 17, 0));
+OutputFileOptions outputOptions = new OutputFileOptions()
+    .SetDuration(new TimeSpan(0, 5, 0));
+
+var arguments = ffmpeg.Transcode(@"C:\Users\Zach\Downloads\test3.mp4", outputOptions)
     .AddVideoStreams(
         input,
-        new VideoStreamOptions() {
-            Codec = Codecs.Libx264.SetCRF(16)
-        })
+        new VideoStreamOptions() 
+            .SetCodec(Codecs.LibSvtAV1
+                .SetCRF(20)
+                .SetPreset(5))
+            .AddFilter(Filters.Scale(ScaleResolution.SD_720x480)),
+        inputOptions)
     .AddAudioStream(
         input.AudioStreams[0],
-        new AudioStreamOptions() {
-            Codec = Codecs.AAC,
-            Language = Language.FromPart2("eng")
-        });
+        new AudioStreamOptions() 
+            .SetCodec(Codecs.AC3)
+            .SetLanguage(Language.FromPart2("eng")),
+        inputOptions);
 
-bool result = arguments
+Stopwatch timer = new();
+string? result = arguments
     .NotifyOnProgress((double percent) =>
     {
+        if (!timer.IsRunning) timer.Start();
+        if (percent >= 99.5) timer.Stop();
         Console.WriteLine($"Progress: {percent:0}%");
     })
     .SetLogPath(@"C:\Users\Zach\Downloads\TestLog.txt")
-    .SetOverwrite(false)
+    .SetOverwrite(true)
     .Run();
 
-if (!result)
+Console.WriteLine($"Process took {timer.Elapsed} to finish.");
+
+if (result != null)
 {
     Console.ForegroundColor = ConsoleColor.Red;
-    Console.WriteLine("FFMpeg encountered an error!");
+    Console.WriteLine($"FFMpeg encountered an error! ({result})");
     Console.ResetColor();
     return;
 }
 Console.WriteLine("Success!");
 
-ffmpeg.Snapshot(@"C:\Users\Zach\Downloads\Test.mp4", 0, @"C:\Users\Zach\Downloads\Snapshot_frame_0.png").Run();
+//ffmpeg.Snapshot(@"C:\Users\Zach\Downloads\Test.mp4", 0, @"C:\Users\Zach\Downloads\Snapshot_frame_0.png").Run();

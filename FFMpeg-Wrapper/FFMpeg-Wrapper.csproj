@@ -14,9 +14,13 @@
     <RepositoryUrl>https://github.com/ZacharyCarey/FFMpeg-Wrapper</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>CLI;command;line;wrapper;command line;library;shell;async;FFMpeg;FFProbe</PackageTags>
-    <PackageReleaseNotes>Added option to ffprobe to use the -count_frames flag</PackageReleaseNotes>
+    <PackageReleaseNotes>Added error reporting.
+Added more codecs
+Added input/output file options
+Improved progress calculation
+Added rescaling options</PackageReleaseNotes>
     <AssemblyVersion></AssemblyVersion>
-    <Version>1.0.7</Version>
+    <Version>1.1.0</Version>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	<GenerateDocumentationFile>True</GenerateDocumentationFile>

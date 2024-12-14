@@ -8,7 +8,7 @@ namespace FFMpeg_Wrapper.Codecs {
 
     public interface Codec {
         internal string Name { get; }
-        internal IEnumerable<string> GetArguments(string streamSpecifier);
+        internal IEnumerable<string> GetArguments();
     }
 
     public interface VideoCodec : Codec {
