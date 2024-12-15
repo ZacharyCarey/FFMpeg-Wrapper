@@ -287,6 +287,10 @@ namespace FFMpeg_Wrapper.ffmpeg
             }
             return index;
         }
+
+        protected override string? FolderToClean() {
+            return null;
+        }
     }
 
 }

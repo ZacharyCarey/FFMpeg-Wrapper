@@ -26,6 +26,8 @@ namespace FFMpeg_Wrapper.ffmpeg
 
         protected abstract TimeSpan DetermineProcessTime();
 
+        protected abstract string? FolderToClean();
+
         /// <summary>
         /// Register an action that will be invoked during the ffmpeg processing when a percentage is calculated.
         /// The double parameter is a value from 0.0-100.0 indicating the estimated percentage complete.
@@ -77,6 +79,16 @@ namespace FFMpeg_Wrapper.ffmpeg
             CliParser parser = CreateParser(cli);
             CliResult result = cli.Run();
             parser.ForceUpdateComplete();
+
+            string? tempFolder = this.FolderToClean();
+            if (tempFolder != null)
+            {
+                try
+                {
+                    Directory.Delete(tempFolder, true);
+                } catch (Exception) { }
+            }
+
             return ParseResult(result);
         }
 
@@ -86,6 +98,16 @@ namespace FFMpeg_Wrapper.ffmpeg
             CliParser parser = CreateParser(cli);
             CliResult result = await cli.RunAsync();
             parser.ForceUpdateComplete();
+
+            string? tempFolder = this.FolderToClean();
+            if (tempFolder != null)
+            {
+                try
+                {
+                    Directory.Delete(tempFolder, true);
+                } catch (Exception) { }
+            }
+
             return ParseResult(result);
         }
 

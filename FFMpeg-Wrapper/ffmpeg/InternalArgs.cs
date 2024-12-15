@@ -11,6 +11,7 @@ namespace FFMpeg_Wrapper.ffmpeg
     {
         string[] Arguments;
         internal TimeSpan ProcessTime = new();
+        string? TempFolder = null;
 
         protected override TimeSpan DetermineProcessTime() {
             return ProcessTime;
@@ -24,6 +25,10 @@ namespace FFMpeg_Wrapper.ffmpeg
         protected override IEnumerable<string> GetArguments()
         {
             return Arguments;
+        }
+
+        protected override string? FolderToClean() {
+            return TempFolder;
         }
     }
 }
