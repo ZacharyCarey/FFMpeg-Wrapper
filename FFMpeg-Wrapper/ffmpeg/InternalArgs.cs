@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FFMpeg_Wrapper.ffmpeg
 {
-    internal class InternalArgs : FFMpegArgs
+    internal class InternalArgs : FFMpegCliArgs
     {
         string[] Arguments;
         internal TimeSpan ProcessTime = new();
@@ -22,13 +22,23 @@ namespace FFMpeg_Wrapper.ffmpeg
             Arguments = args;
         }
 
+        protected override void Begin() {
+            
+        }
+
         protected override IEnumerable<string> GetArguments()
         {
             return Arguments;
         }
 
-        protected override string? FolderToClean() {
-            return TempFolder;
+        protected override void Cleanup() {
+            if (TempFolder != null)
+            {
+                try
+                {
+                    Directory.Delete(TempFolder, true);
+                } catch (Exception) { }
+            }
         }
     }
 }

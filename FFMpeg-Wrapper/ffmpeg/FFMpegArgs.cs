@@ -1,185 +1,213 @@
-﻿using CLI_Wrapper;
+﻿using FFMpeg_Wrapper.ffprobe;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FFMpeg_Wrapper.ffmpeg
-{
-    public abstract class FFMpegArgs
-    {
+namespace FFMpeg_Wrapper.ffmpeg {
+    public interface IFFMpegArgs {
+        internal void Begin();
+        internal IEnumerable<string> GetArguments();
+        internal void Cleanup();
+    }
 
-        private Action<TimeSpan>? OnTimeProgress = null;
-        private Action<double>? OnPercentProgress = null;
+    public interface FFMpegInput : IFFMpegArgs {
+        internal TimeSpan Duration { get; }
+    }
 
-        protected FFMpeg Core { get; }
-        string? LogPath = null;
-        bool Overwrite = true;
+    public class FFMpegArgs : FFMpegCliArgs {
 
-        protected FFMpegArgs(FFMpeg core)
-        {
-            Core = core;
+        List<FFMpegInput> InputFiles = new();
+        FilterArguments? InputFilter = null;
+        List<IFFMpegArgs> Arguments = new();
+        int InputFileCount = 0;
+        int OutputStreamCount = 0;
+        OutputFile OutputFile;
+        TimeSpan LongestInput = new();
+
+        internal FFMpegArgs(FFMpeg core, OutputFile outputFile) : base(core) {
+            this.OutputFile = outputFile;
         }
 
-        protected abstract IEnumerable<string> GetArguments();
-
-        protected abstract TimeSpan DetermineProcessTime();
-
-        protected abstract string? FolderToClean();
-
-        /// <summary>
-        /// Register an action that will be invoked during the ffmpeg processing when a percentage is calculated.
-        /// The double parameter is a value from 0.0-100.0 indicating the estimated percentage complete.
-        /// </summary>
-        /// <param name="onPercentageProgress"></param>
-        /// <returns></returns>
-        public FFMpegArgs NotifyOnProgress(Action<double> callback)
-        {
-            OnPercentProgress = callback;
-            return this;
-        }
-
-        /// <summary>
-        /// Register an action that will be invoked during the ffmpeg processing.
-        /// The TimeSpan parameter is the current time of the output file that ffmpeg
-        /// is currently processing.
-        /// </summary>
-        /// <param name="onTimeProgress"></param>
-        /// <returns></returns>
-        public FFMpegArgs NotifyOnProgress(Action<TimeSpan> callback)
-        {
-            OnTimeProgress = callback;
-            return this;
-        }
-
-        /// <inheritdoc cref="CLI.SetLogPath(string)"/>
-        public FFMpegArgs SetLogPath(string path)
-        {
-            LogPath = path;
-            return this;
-        }
-
-        public FFMpegArgs SetOverwrite(bool allow)
-        {
-            Overwrite = allow;
-            return this;
-        }
-
-        /// <summary>
-        /// On success will return null.
-        /// On an error, will return the error string associated with the 
-        /// return code received from FFMpeg. If the error code is unknown,
-        /// "Unknown Error Code" will be returned.
-        /// </summary>
-        /// <returns></returns>
-        public string? Run()
-        {
-            CLI cli = CreateCLI();
-            CliParser parser = CreateParser(cli);
-            CliResult result = cli.Run();
-            parser.ForceUpdateComplete();
-
-            string? tempFolder = this.FolderToClean();
-            if (tempFolder != null)
+        protected override TimeSpan DetermineProcessTime() {
+            if (OutputFile.Duration != null)
             {
-                try
+                // Duration takes priority over stop time
+                return OutputFile.Duration.Value;
+            } else
+            {
+                if (OutputFile.StopTime != null)
                 {
-                    Directory.Delete(tempFolder, true);
-                } catch (Exception) { }
-            }
-
-            return ParseResult(result);
-        }
-
-        public async Task<string?> RunAsync()
-        {
-            CLI cli = CreateCLI();
-            CliParser parser = CreateParser(cli);
-            CliResult result = await cli.RunAsync();
-            parser.ForceUpdateComplete();
-
-            string? tempFolder = this.FolderToClean();
-            if (tempFolder != null)
-            {
-                try
-                {
-                    Directory.Delete(tempFolder, true);
-                } catch (Exception) { }
-            }
-
-            return ParseResult(result);
-        }
-
-        private CLI CreateCLI()
-        {
-            CLI cli = Core.GetCLI();
-            if (LogPath != null) cli.SetLogPath(LogPath);
-
-            cli.AddArgument("-nostdin");
-            cli.AddArgument(Overwrite ? "-y" : "-n");
-            cli.AddArgument($"-abort_on empty_output");
-            cli.AddArguments(GetArguments());
-
-            return cli;
-        }
-
-        private CliParser CreateParser(CLI cli)
-        {
-            CliParser parser = new(DetermineProcessTime());
-            if (OnPercentProgress != null) parser.OnPercentProgress += (sender, value) => OnPercentProgress(value);
-            if (OnTimeProgress != null) parser.OnTimeProgress += (sender, value) => OnTimeProgress(value);
-            cli.OutputDataReceived += parser.ParseStdOutput;
-            cli.ErrorDataReceived += parser.ParseStdError;
-
-            return parser;
-        }
-
-        /// <summary>
-        /// On success will return null.
-        /// On an error, will return the error string associated with the 
-        /// return code received from FFMpeg. If the error code is unknown,
-        /// "Unknown Error Code" will be returned.
-        /// </summary>
-        private string? ParseResult(CliResult result)
-        {
-            if (result.Exception != null)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"FFMpeg encountered an exception: {result.Exception.Message}");
-                Console.ResetColor();
-                return $"Exception encountered: {result.Exception.Message}";
-            }
-            else if (result.ExitCode != 0)
-            {
-                string errorString;
-                if (!ErrorCodes.Errors.TryGetValue(result.ExitCode, out errorString))
-                {
-                    errorString = "Unknown Error Code";
-                }
-
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"FFMpeg returned an error code: {result.ExitCode} - {errorString}");
-                Console.ResetColor();
-                return errorString;
-            }
-            else
-            {
-                // Force error in certain situations
-                foreach (var line in result.ErrorData)
-                {
-                    if (line.StartsWith("Error opening output file"))
+                    TimeSpan startTime = new();
+                    if (OutputFile.StartTime != null)
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine($"FFMpeg failed to open output file.");
-                        Console.ResetColor();
-                        return "Failed to open output file.";
+                        startTime = OutputFile.StartTime.Value;
                     }
+                    return OutputFile.StopTime.Value - startTime;
                 }
-
-                // No errors were found
-                return null;
             }
+
+            // Duration will be determined by input files
+            // OutputFile.ToTime is not defined, so the output length is uncapped.
+            // There may still be output seeking
+            if (OutputFile.StartTime != null)
+            {
+                TimeSpan seekTime = OutputFile.StartTime.Value;
+                if (seekTime > this.LongestInput) return new TimeSpan();
+                else return this.LongestInput - seekTime;
+            } else
+            {
+                return this.LongestInput;
+            }
+        }
+
+        protected override void Begin() {
+            foreach(var input in this.InputFiles)
+            {
+                input.Begin();
+            }
+        }
+
+        protected override IEnumerable<string> GetArguments() {
+            return this.InputFiles.SelectMany(input => input.GetArguments())
+                .Concat((this.InputFilter != null) ? this.InputFilter.GetArguments() : Enumerable.Empty<string>())
+                .Concat(Arguments.SelectMany(args => args.GetArguments()))
+                .Concat(this.OutputFile.GetArguments());
+        }
+
+        protected override void Cleanup() {
+            foreach (var input in this.InputFiles)
+            {
+                input.Cleanup();
+            }
+        }
+
+        /// <summary>
+        /// Returns the index for this input.
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        public int AddInput(FFMpegInput input) {
+            if (input.Duration > this.LongestInput)
+            {
+                this.LongestInput = input.Duration;
+            }
+
+            this.InputFiles.Add(input);
+            return InputFileCount++;
+        }
+
+        public FFMpegArgs SetInputFilter(FilterArguments filter) {
+            this.InputFilter = filter;
+            return this;
+        } 
+
+        /// <summary>
+        /// Appends the selected input stream to the output file with the given options
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        public FFMpegArgs AddStream(StreamOptions stream) {
+            this.Arguments.Add(new StreamArgs(stream, $":{this.OutputStreamCount}"));
+            this.OutputStreamCount++;
+            return this;
+        }
+
+        /// <summary>
+        /// Appends all of the selected input streams to the output file with the given options
+        /// </summary>
+        /// <param name="streams"></param>
+        /// <returns></returns>
+        public FFMpegArgs AddStreams(IEnumerable<StreamOptions> streams) {
+            foreach(var stream in streams)
+            {
+                this.AddStream(stream);
+            }
+            return this;
+        }
+
+        /// <inheritdoc cref="AddStreams(IEnumerable{StreamOptions})"/>
+        public FFMpegArgs AddStreams(params StreamOptions[] streams) {
+            return this.AddStreams(streams.AsEnumerable());
+        }
+
+        /// <summary>
+        /// Shortcut method to quickly copy the named stream to the output file
+        /// </summary>
+        /// <param name="namedStream"></param>
+        /// <returns></returns>
+        public FFMpegArgs CopyStream(string namedStream) {
+            return this.AddStream(new StreamOptions(namedStream));
+        }
+
+        /// <summary>
+        /// Shortcut method to quickly copy the named streams to the output file
+        /// </summary>
+        /// <param name="namedStreams"></param>
+        /// <returns></returns>
+        public FFMpegArgs CopyStreams(IEnumerable<string> namedStreams) {
+            foreach(var name in namedStreams)
+            {
+                this.CopyStream(name);
+            }
+            return this;
+        }
+
+        /// <inheritdoc cref="CopyStreams(IEnumerable{string})"/>
+        public FFMpegArgs CopyStreams(params string[] namedStreams) {
+            return this.CopyStreams(namedStreams.AsEnumerable());
+        }
+
+        /// <summary>
+        /// Shortcut method to quickly copy the input stream to the output file
+        /// </summary>
+        /// <param name="inputFileIndex"></param>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        public FFMpegArgs CopyStream(int inputFileIndex, MediaStream stream) {
+            return this.AddStream(new StreamOptions(inputFileIndex, stream.Index));
+        }
+
+        /// <summary>
+        /// Shortcut method to quickly copy the input streams to the output file
+        /// </summary>
+        /// <param name="inputFileIndex"></param>
+        /// <param name="streams"></param>
+        /// <returns></returns>
+        public FFMpegArgs CopyStreams(int inputFileIndex, IEnumerable<MediaStream> streams) {
+            foreach(var stream in streams)
+            {
+                this.CopyStream(inputFileIndex, stream);
+            }
+            return this;
+        }
+
+        /// <inheritdoc cref="CopyStreams(int, IEnumerable{MediaStream})"/>
+        public FFMpegArgs CopyStreams(int inputFileIndex, params MediaStream[] streams) {
+            return this.CopyStreams(inputFileIndex, streams.AsEnumerable());
+        }
+    }
+
+    internal class StreamArgs : IFFMpegArgs {
+        StreamOptions Stream;
+        string OutputStreamSpecifier;
+
+        public StreamArgs(StreamOptions options, string outputStreamSpecifier) {
+            this.Stream = options;
+            this.OutputStreamSpecifier = outputStreamSpecifier;
+        }
+
+        void IFFMpegArgs.Begin() {
+        }
+
+        void IFFMpegArgs.Cleanup() {
+        }
+
+        IEnumerable<string> IFFMpegArgs.GetArguments() {
+            return Stream.GetArguments(this.OutputStreamSpecifier);
         }
     }
 }

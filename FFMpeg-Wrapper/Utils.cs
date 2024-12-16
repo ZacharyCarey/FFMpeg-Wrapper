@@ -19,7 +19,7 @@ namespace FFMpeg_Wrapper {
 
         internal static string GetEscapedString(string str) {
             str = str.Replace("\"", "\\\"");
-            return $"\"{str}\"";
+            return str;
         }
     }
 }

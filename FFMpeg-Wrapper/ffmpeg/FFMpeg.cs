@@ -44,31 +44,16 @@ namespace FFMpeg_Wrapper.ffmpeg
             }
         }
 
-        public TranscodeArguments Transcode(string outputFile, OutputFileOptions? fileArgs = null)
+        public FFMpegArgs Transcode(OutputFile outputFile)
         {
-            if (fileArgs == null) fileArgs = new();
-            fileArgs.FilePath = outputFile;
-            return new TranscodeArguments(this, fileArgs);
-        }
-
-        /// <summary>
-        /// Used to append multiple files together. Currently this does not
-        /// support transcoding.
-        /// </summary>
-        /// <param name="outputFile"></param>
-        /// <param name="fileArgs"></param>
-        /// <returns></returns>
-        public ConcatArguments Concat(string outputFile, OutputFileOptions? fileArgs = null) {
-            if (fileArgs == null) fileArgs = new();
-            fileArgs.FilePath = outputFile;
-            return new ConcatArguments(this, fileArgs);
+            return new FFMpegArgs(this, outputFile);
         }
 
         /// <summary>
         /// Returns a set of arguments that will create a snapshot at the desired frame
         /// </summary>
         /// <returns></returns>
-        public FFMpegArgs Snapshot(string inputFile, uint frameIndex, string outputFile)
+        public FFMpegCliArgs Snapshot(string inputFile, uint frameIndex, string outputFile)
         {
             return new InternalArgs(this,
                 $"-i \"{inputFile}\"",
@@ -78,7 +63,7 @@ namespace FFMpeg_Wrapper.ffmpeg
             );
         }
 
-        public FFMpegArgs Snapshot(string inputFile, TimeSpan time, string outputFile)
+        public FFMpegCliArgs Snapshot(string inputFile, TimeSpan time, string outputFile)
         {
             return new InternalArgs(this,
                 $"-ss {time}",
