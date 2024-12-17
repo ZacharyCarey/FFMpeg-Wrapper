@@ -14,9 +14,10 @@
     <RepositoryUrl>https://github.com/ZacharyCarey/FFMpeg-Wrapper</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>CLI;command;line;wrapper;command line;library;shell;async;FFMpeg;FFProbe</PackageTags>
-    <PackageReleaseNotes>Added ability to add multiple input filters</PackageReleaseNotes>
+    <PackageReleaseNotes>
+</PackageReleaseNotes>
     <AssemblyVersion></AssemblyVersion>
-    <Version>1.2.3</Version>
+    <Version>1.2.4</Version>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	<GenerateDocumentationFile>True</GenerateDocumentationFile>

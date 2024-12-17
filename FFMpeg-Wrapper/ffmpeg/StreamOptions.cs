@@ -97,7 +97,7 @@ namespace FFMpeg_Wrapper.ffmpeg {
         /// <param name="language"></param>
         /// <returns></returns>
         public StreamOptions SetLanguage(Language? language) {
-            this.Metadata["language"] = language.Part3 ?? language.Part2 ?? language.Part1 ?? "und";
+            this.Metadata["language"] = language?.Part3 ?? language?.Part2 ?? language?.Part1 ?? "und";
             return this;
         }
 
