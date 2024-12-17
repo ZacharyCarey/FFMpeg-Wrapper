@@ -20,7 +20,7 @@ namespace FFMpeg_Wrapper.ffmpeg {
     public class FFMpegArgs : FFMpegCliArgs {
 
         List<FFMpegInput> InputFiles = new();
-        FilterArguments? InputFilter = null;
+        List<FilterArguments> InputFilters = new();
         List<IFFMpegArgs> Arguments = new();
         int InputFileCount = 0;
         int OutputStreamCount = 0;
@@ -72,7 +72,7 @@ namespace FFMpeg_Wrapper.ffmpeg {
 
         protected override IEnumerable<string> GetArguments() {
             return this.InputFiles.SelectMany(input => input.GetArguments())
-                .Concat((this.InputFilter != null) ? this.InputFilter.GetArguments() : Enumerable.Empty<string>())
+                .Concat(this.InputFilters.SelectMany(x => x.GetArguments()))
                 .Concat(Arguments.SelectMany(args => args.GetArguments()))
                 .Concat(this.OutputFile.GetArguments());
         }
@@ -100,8 +100,8 @@ namespace FFMpeg_Wrapper.ffmpeg {
             return InputFileCount++;
         }
 
-        public FFMpegArgs SetInputFilter(FilterArguments filter) {
-            this.InputFilter = filter;
+        public FFMpegArgs AddInputFilter(FilterArguments filter) {
+            this.InputFilters.Add(filter);
             return this;
         } 
 

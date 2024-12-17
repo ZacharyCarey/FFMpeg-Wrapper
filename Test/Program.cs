@@ -67,7 +67,7 @@ var filter = new FilterArguments()
     .AddInput(0, input.PrimaryVideoStream.Index)
     .AddOutput("v0");
 
-arguments.SetInputFilter(filter);
+arguments.AddInputFilter(filter);
 arguments.AddStream(new VideoStreamOptions("v0")
     .SetCodec(Codecs.LibSvtAV1
         .SetCRF(20)
