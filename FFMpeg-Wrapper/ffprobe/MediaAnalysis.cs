@@ -108,7 +108,7 @@ namespace FFMpeg_Wrapper.ffprobe
                     : (!string.IsNullOrEmpty(stream.NumberOfFrames) ? MediaAnalysisUtils.ParseUIntInvariant(stream.NumberOfFrames) : default),
 
                 FieldOrder = stream.FieldOrder ?? "",
-                ID = stream.Id
+                ID = (stream.Id == null) ? null : Convert.ToInt32(stream.Id, 16)
             };
         }
 
@@ -130,7 +130,7 @@ namespace FFMpeg_Wrapper.ffprobe
                 Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),
                 Tags = stream.Tags.ToCaseInsensitive(),
                 BitDepth = GetBitDepth(stream),
-                ID = stream.Id
+                ID = (stream.Id == null) ? null : Convert.ToInt32(stream.Id, 16)
             };
         }
 
@@ -145,7 +145,7 @@ namespace FFMpeg_Wrapper.ffprobe
                 Language = ParseLanguage(stream.Language),
                 Disposition = MediaAnalysisUtils.FormatDisposition(stream.Disposition),
                 Tags = stream.Tags.ToCaseInsensitive(),
-                ID = stream.Id
+                ID = (stream.Id == null) ? null : Convert.ToInt32(stream.Id, 16)
             };
         }
 
