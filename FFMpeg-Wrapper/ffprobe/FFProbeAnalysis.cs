@@ -120,6 +120,9 @@ namespace FFMpeg_Wrapper.ffprobe {
 
         [JsonPropertyName("field_order")]
         public string? FieldOrder { get; set; } = null;
+
+        [JsonPropertyName("id")]
+        public int? Id { get; set; }
     }
 
     public class Format : TagsContainer {

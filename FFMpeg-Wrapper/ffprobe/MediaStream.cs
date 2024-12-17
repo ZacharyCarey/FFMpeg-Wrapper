@@ -20,6 +20,7 @@ namespace FFMpeg_Wrapper.ffprobe {
         public Dictionary<string, bool>? Disposition { get; set; }
         public Dictionary<string, string>? Tags { get; set; }
         public int? BitDepth { get; set; }
+        public int? ID { get; set; }
 
         protected MediaStream(MediaAnalysis sourceFile) {
             this.SourceFile = sourceFile;
