@@ -21,9 +21,15 @@ namespace FFMpeg_Wrapper.ffmpeg {
             {
                 arg.Append(input);
             }
+            bool first = true;
             foreach (var filter in this.Filters)
             {
+                if (!first)
+                {
+                    arg.Append(',');
+                }
                 arg.Append(filter.GetArguments());
+                first = false;
             }
             foreach(var output in this.OutputNames)
             {
