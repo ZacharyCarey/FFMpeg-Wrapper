@@ -14,13 +14,14 @@ namespace FFMpeg_Wrapper.Filters
         public static bwdif Bwdif => new bwdif();
         public static overlay Overlay => new overlay();
 
-        /// <summary>
-        /// Sets the vertical resolution while maintaining the aspect ratio of the file.
-        /// </summary>
-        /// <param name="resolution"></param>
-        /// <returns></returns>
+        /// <inheritdoc cref="scale(ScaleResolution)"/>
         public static scale Scale(ScaleResolution resolution) {
             return new scale(resolution);
+        }
+
+        /// <inheritdoc cref="Scale(int, int)"/>
+        public static scale Scale(int width, int height) {
+            return new scale(width, height);
         }
     }
 
