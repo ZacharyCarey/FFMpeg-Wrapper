@@ -12,7 +12,7 @@ namespace FFMpeg_Wrapper.Filters
 
         public static yadif Yadif => new yadif();
         public static bwdif Bwdif => new bwdif();
-        //public static scale Scale => new scale();
+        public static overlay Overlay => new overlay();
 
         /// <summary>
         /// Sets the vertical resolution while maintaining the aspect ratio of the file.
