@@ -1,8 +1,8 @@
 # [FFMpeg-Wrapper](https://www.nuget.org/packages/FFMpeg-Wrapper/) 
 A wrapper for FFMpeg CLI for ease-of-use when running commands.
 
-[![NuGet Version](https://img.shields.io/nuget/v/FFMpeg-Wrapper)](https://www.nuget.org/packages/FFMpeg-Wrapper/)
-[![NuGet Downloads](https://img.shields.io/nuget/dt/FFMpeg-Wrapper)](https://www.nuget.org/packages/FFMpeg-Wrapper/)
+[![NuGet Version](https://img.shields.io/nuget/v/FFMpeg_Wrapper)](https://www.nuget.org/packages/FFMpeg_Wrapper/)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/FFMpeg_Wrapper)](https://www.nuget.org/packages/FFMpeg_Wrapper/)
 [![GitHub issues](https://img.shields.io/github/issues/ZacharyCarey/FFMpeg-Wrapper)](https://github.com/ZacharyCarey/FFMpeg-Wrapper/issues)
 [![GitHub stars](https://img.shields.io/github/stars/ZacharyCarey/FFMpeg-Wrapper)](https://github.com/ZacharyCarey/FFMpeg-Wrapper/stargazers)
 [![GitHub](https://img.shields.io/github/license/ZacharyCarey/FFMpeg-Wrapper)](https://github.com/ZacharyCarey/FFMpeg-Wrapper/blob/master/LICENSE.txt)
