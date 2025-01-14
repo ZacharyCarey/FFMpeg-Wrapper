@@ -14,9 +14,9 @@
     <RepositoryUrl>https://github.com/ZacharyCarey/FFMpeg-Wrapper</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>CLI;command;line;wrapper;command line;library;shell;async;FFMpeg;FFProbe</PackageTags>
-    <PackageReleaseNotes>Added audio options</PackageReleaseNotes>
+    <PackageReleaseNotes>Added anullsrc input</PackageReleaseNotes>
     <AssemblyVersion></AssemblyVersion>
-    <Version>1.2.8</Version>
+    <Version>1.2.9</Version>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	<GenerateDocumentationFile>True</GenerateDocumentationFile>
