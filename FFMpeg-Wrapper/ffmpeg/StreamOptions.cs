@@ -13,6 +13,7 @@ namespace FFMpeg_Wrapper.ffmpeg {
         Codec Codec = new CopyCodec();
         Dictionary<string, bool> Dispositions = new();
         Dictionary<string, string> Metadata = new();
+        Dictionary<string, string> Args = new();
         string InputMap;
 
         public StreamOptions(string namedStream) {
@@ -31,6 +32,12 @@ namespace FFMpeg_Wrapper.ffmpeg {
         internal IEnumerable<string> GetArguments(string OutputStreamSpecifier) {
             yield return $"-map {InputMap}";
             yield return $"-c{OutputStreamSpecifier} {Codec.Name}";
+
+            foreach(var pair in Args)
+            {
+                yield return $"{pair.Key}{OutputStreamSpecifier} {pair.Value}";
+            }
+
             foreach (var arg in Codec.GetArguments())
             {
                 yield return arg;
@@ -103,6 +110,16 @@ namespace FFMpeg_Wrapper.ffmpeg {
 
         public StreamOptions SetName(string name) {
             this.Metadata["title"] = $"\"{Utils.GetEscapedString(name)}\"";
+            return this;
+        }
+
+        public StreamOptions SetAudioChannels(int count) {
+            this.Args["-ac"] = count.ToString();
+            return this;
+        }
+
+        public StreamOptions SetAudioFrequency(int freq) {
+            this.Args["-ar"] = freq.ToString();
             return this;
         }
     }
