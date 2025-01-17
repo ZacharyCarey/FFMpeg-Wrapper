@@ -13,7 +13,7 @@ namespace FFMpeg_Wrapper.ffmpeg {
         Codec Codec = new CopyCodec();
         Dictionary<string, bool> Dispositions = new();
         Dictionary<string, string> Metadata = new();
-        Dictionary<string, string> Args = new();
+        protected Dictionary<string, string> Args = new();
         string InputMap;
 
         public StreamOptions(string namedStream) {
@@ -33,7 +33,7 @@ namespace FFMpeg_Wrapper.ffmpeg {
             yield return $"-map {InputMap}";
             yield return $"-c{OutputStreamSpecifier} {Codec.Name}";
 
-            foreach(var pair in Args)
+            foreach (var pair in Args)
             {
                 yield return $"{pair.Key}{OutputStreamSpecifier} {pair.Value}";
             }
@@ -110,16 +110,6 @@ namespace FFMpeg_Wrapper.ffmpeg {
 
         public StreamOptions SetName(string name) {
             this.Metadata["title"] = $"\"{Utils.GetEscapedString(name)}\"";
-            return this;
-        }
-
-        public StreamOptions SetAudioChannels(int count) {
-            this.Args["-ac"] = count.ToString();
-            return this;
-        }
-
-        public StreamOptions SetAudioFrequency(int freq) {
-            this.Args["-ar"] = freq.ToString();
             return this;
         }
     }
@@ -203,6 +193,41 @@ namespace FFMpeg_Wrapper.ffmpeg {
         protected override VideoStreamOptions GetThis() {
             return this;
         }
+
+        public VideoStreamOptions SetVideoBitrate(long bitrate) {
+            this.Args["-b"] = bitrate.ToString();
+            return this;
+        }
+
+        public VideoStreamOptions SetGroupOfPictureSize(int g) {
+            this.Args["-g"] = g.ToString();
+            return this;
+        }
+
+        public VideoStreamOptions SetMaxRate(long bitrate) {
+            this.Args["-maxrate"] = bitrate.ToString();
+            return this;
+        }
+
+        public VideoStreamOptions SetMinimumKeyInterval(int value) {
+            this.Args["-keyint_min"] = value.ToString();
+            return this;
+        }
+
+        public VideoStreamOptions SetProfile(string profile) {
+            this.Args["-profile"] = profile;
+            return this;
+        }
+
+        public VideoStreamOptions SetBufferSize(long size) {
+            this.Args["-bufsize"] = size.ToString();
+            return this;
+        }
+
+        public VideoStreamOptions SetPixelFormat(string format) {
+            this.Args["-pix_fmt"] = format;
+            return this;
+        }
     }
     public class AudioStreamOptions : StreamOptions<AudioCodec, AudioFilter, AudioStreamOptions> {
         public AudioStreamOptions(string namedStream) : base(namedStream) {
@@ -212,6 +237,21 @@ namespace FFMpeg_Wrapper.ffmpeg {
         }
 
         protected override AudioStreamOptions GetThis() {
+            return this;
+        }
+
+        public AudioStreamOptions SetAudioChannels(int count) {
+            this.Args["-ac"] = count.ToString();
+            return this;
+        }
+
+        public AudioStreamOptions SetAudioFrequency(long freq) {
+            this.Args["-ar"] = freq.ToString();
+            return this;
+        }
+
+        public AudioStreamOptions SetAudioBitrate(long bitrate) {
+            this.Args["-ab"] = bitrate.ToString();
             return this;
         }
     }

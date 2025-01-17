@@ -26,6 +26,9 @@ namespace FFMpeg_Wrapper.ffmpeg {
         int OutputStreamCount = 0;
         OutputFile OutputFile;
         TimeSpan LongestInput = new();
+        bool copyTS = false;
+        bool startAtZero = false;
+        bool? avoidNegativeTS = null;
 
         internal FFMpegArgs(FFMpeg core, OutputFile outputFile) : base(core) {
             this.OutputFile = outputFile;
@@ -71,8 +74,14 @@ namespace FFMpeg_Wrapper.ffmpeg {
         }
 
         protected override IEnumerable<string> GetArguments() {
+            List<string> GlobalArgs = new();
+            if (copyTS) GlobalArgs.Add("-copyts");
+            if (startAtZero) GlobalArgs.Add("-start_at_zero");
+            if (avoidNegativeTS != null) GlobalArgs.Add(avoidNegativeTS.Value ? "-avoid_negative_ts enabled" : "-avoid_negative_ts disabled");
+
             return this.InputFiles.SelectMany(input => input.GetArguments())
                 .Concat(this.InputFilters.SelectMany(x => x.GetArguments()))
+                .Concat(GlobalArgs)
                 .Concat(Arguments.SelectMany(args => args.GetArguments()))
                 .Concat(this.OutputFile.GetArguments());
         }
@@ -82,6 +91,21 @@ namespace FFMpeg_Wrapper.ffmpeg {
             {
                 input.Cleanup();
             }
+        }
+
+        public FFMpegArgs SetCopyTimestamps(bool enable) {
+            this.copyTS = enable;
+            return this;
+        }
+
+        public FFMpegArgs SetStartAtZero(bool enable) {
+            this.startAtZero = enable;
+            return this;
+        }
+
+        public FFMpegArgs SetAvoidNegativeTimestamps(bool enable) {
+            this.avoidNegativeTS = enable;
+            return this;
         }
 
         /// <summary>

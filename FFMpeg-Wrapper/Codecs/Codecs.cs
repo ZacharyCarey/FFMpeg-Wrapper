@@ -11,6 +11,7 @@ namespace FFMpeg_Wrapper.Codecs {
         // Video codecs
         public static libx264 Libx264 => new();
         public static libsvtav1 LibSvtAV1 => new();
+        public static h264_nvenc NvidiaH264 => new();
 
         // Audio codecs
         public static aac AAC => new();
