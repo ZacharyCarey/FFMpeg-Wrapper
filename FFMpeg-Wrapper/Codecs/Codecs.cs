@@ -16,6 +16,7 @@ namespace FFMpeg_Wrapper.Codecs {
         // Audio codecs
         public static aac AAC => new();
         public static ac3 AC3 => new();
+        public static eac3 EAC3 => new();
 
         // General codecs
         public static CopyCodec Copy => new();
